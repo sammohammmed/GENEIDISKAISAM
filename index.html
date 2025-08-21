@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>نظام إدارة تذاكر العملاء - GenieDesk AI</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <style>
+       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+       body {
+           font-family: 'Inter', sans-serif;
+           direction: rtl; /* Set text direction to right-to-left for Arabic */
+           text-align: right;
+       }
+       .container {
+           max-width: 900px;
+       }
+   </style>
+</head>
+<body class="bg-gray-100 p-8">
+   <div class="container mx-auto bg-white rounded-xl shadow-lg p-6 sm:p-8">
+       <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">GenieDesk AI: لوحة تحليلات تفاعلية لخدمة العملاء</h1>
+
+       <!-- Project Description -->
+       <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+           <h2 class="text-2xl font-semibold mb-4 text-gray-700">وصف المشروع</h2>
+           <p class="text-gray-600 leading-relaxed">
+               GenieDesk AI هو حل ذكي يعتمد على BigQuery AI لتحويل بيانات تذاكر الدعم الفني غير المهيكلة إلى رؤى قابلة للتنفيذ. يستخدم النظام وظائف الذكاء الاصطناعي التوليدي لتلخيص آلاف المحادثات، وتصنيف الشكاوى بدقة، والتنبؤ باتجاهات العملاء المستقبلية.
+           </p>
+       </div>
+
+       <!-- Form to add new ticket -->
+       <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+           <h2 class="text-2xl font-semibold mb-4 text-gray-700">إضافة تذكرة جديدة</h2>
+           <form id="add-ticket-form" class="space-y-4">
+               <div>
+                   <label for="customer_name" class="block text-sm font-medium text-gray-700">اسم العميل</label>
+                   <input type="text" id="customer_name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+               </div>
+               <div>
+                   <label for="issue_summary" class="block text-sm font-medium text-gray-700">ملخص المشكلة</label>
+                   <input type="text" id="issue_summary" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+               </div>
+               <div>
+                   <label for="issue_date" class="block text-sm font-medium text-gray-700">تاريخ المشكلة</label>
+                   <input type="date" id="issue_date" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+               </div>
+               <div>
+                   <label for="conversation_text" class="block text-sm font-medium text-gray-700">نص المحادثة</label>
+                   <textarea id="conversation_text" rows="3" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+               </div>
+               <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                   إضافة تذكرة
+               </button>
+           </form>
+       </div>
+
+       <!-- Tickets display section -->
+       <div>
+           <h2 class="text-2xl font-semibold mb-4 text-gray-700">قائمة التذاكر الحالية</h2>
+           <div id="tickets-container" class="grid gap-4">
+               <!-- Tickets will be dynamically added here -->
+           </div>
+       </div>
+
+       <!-- SQL Analysis Section -->
+       <div class="mt-12 p-6 bg-gray-50 rounded-lg border border-gray-200">
+           <h2 class="text-2xl font-semibold mb-4 text-gray-700">خطة التنفيذ: أكواد BigQuery AI</h2>
+           <p class="text-gray-600 mb-4">هذه الأكواد تمثل المراحل الرئيسية لمشروع GenieDesk AI. يمكن نسخها ولصقها في بيئة BigQuery لتحليل البيانات.</p>
+
+           <!-- Stage 1: Summarization & Categorization -->
+           <h3 class="text-xl font-medium mb-2 text-gray-800">المرحلة الأولى: التلخيص والتصنيف</h3>
+           <p class="text-gray-600 mb-4">
+               يستخدم هذا الكود وظيفة <code class="bg-gray-200 rounded-md px-1 py-0.5 text-sm">ML.GENERATE_TEXT</code> لتلخيص وتصنيف كل تذكرة دعم فني تلقائيًا، مما يوفر الوقت ويساعد على فهم طبيعة المشاكل بشكل فوري.
+           </p>
+           <pre class="bg-gray-800 text-white p-4 rounded-md text-sm overflow-x-auto">
+<code class="language-sql">
+SELECT
+ ticket_id,
+ customer_name,
+ issue_date,
+ ML.GENERATE_TEXT(
+   MODEL `your-project-id.customer_support_project.summarization_model`,
+   (SELECT FORMAT("""
+     You are an AI assistant for a customer support team.
+     Summarize the following conversation in one sentence and classify it into one of these categories:
+     - technical
+     - - billing
+     - shipping
+     - general_inquiry
+
+     Conversation: "%s"
+
+     Example Output:
+     Summary: The customer is having a technical issue with their modem.
+     Category: technical
+
+     Your Output:
+     Summary:
+     Category:
+     """, conversation_text) FROM UNNEST([])),
+   options(destination_table = '`your-project-id.customer_support_project.categorized_tickets`')
+ ) AS generated_output
+FROM
+ `your-project-id.customer_support_project.your_csv_table`;
+</code>
+</pre>
+
+           <!-- Stage 2: Forecasting -->
+           <h3 class="text-xl font-medium mt-6 mb-2 text-gray-800">المرحلة الثانية: التنبؤ (Forecasting)</h3>
+           <p class="text-gray-600 mb-4">
+               يستخدم هذا الكود نموذج <code class="bg-gray-200 rounded-md px-1 py-0.5 text-sm">ARIMA_PLUS</code> للتنبؤ بعدد التذاكر المتوقعة في الأيام القادمة، مما يساعد على التخطيط للموارد.
+           </p>
+           <pre class="bg-gray-800 text-white p-4 rounded-md text-sm overflow-x-auto">
+<code class="language-sql">
+CREATE OR REPLACE MODEL `your-project-id.customer_support_project.tickets_forecast`
+OPTIONS(model_type='ARIMA_PLUS', time_series_timestamp_col='issue_date', time_series_data_col='ticket_count') AS
+SELECT
+ issue_date,
+ COUNT(ticket_id) AS ticket_count
+FROM
+ `your-project-id.customer_support_project.categorized_tickets`
+GROUP BY
+ issue_date;
+
+SELECT
+ *
+FROM
+ ML.FORECAST(MODEL `your-project-id.customer_support_project.tickets_forecast`,
+   STRUCT(14 AS horizon));
+</code>
+</pre>
+       </div>
+   </div>
+
+   <script>
+       document.addEventListener('DOMContentLoaded', () => {
+           const initialTickets = [
+               {
+                   Ticket_id: 1001,
+                   customer_name: "Ahmed Ali",
+                   issue_date: "2025-08-15",
+                   issue_summary: "عدم تفعيل الخدمة",
+                   conversation_text: "مرحباً، حاولت تفعيل خدمة الإنترنت الجديدة لكن لم يتم التفعيل. يظهر لي خطأ في النظام. ما الحل؟"
+               },
+               {
+                   Ticket_id: 1002,
+                   customer_name: "Fatima Said",
+                   issue_date: "2025-08-16",
+                   issue_summary: "خطأ في الفاتورة",
+                   conversation_text: "قمت بمراجعة فاتورتي الأخيرة ووجدت رسومًا إضافية لم أطلبها. يرجى توضيح الأمر أو إزالة الرسوم."
+               },
+               {
+                   Ticket_id: 1003,
+                   customer_name: "Yousef Omar",
+                   issue_date: "2025-08-17",
+                   issue_summary: "مشكلة تقنية",
+                   conversation_text: "توقف جهاز المودم عن العمل فجأة، الضوء الأحمر يومض بشكل مستمر. هل يمكن إرسال فني؟"
+               },
+               {
+                   Ticket_id: 1004,
+                   customer_name: "Laila Hassan",
+                   issue_date: "2025-08-18",
+                   issue_summary: "استفسار عن شحن",
+                   conversation_text: "متى سيتم شحن طلبي؟ رقم الطلب هو 55896. لم أتلق أي تحديثات منذ أسبوع."
+               },
+               {
+                   Ticket_id: 1005,
+                   customer_name: "Omar Khaled",
+                   issue_date: "2025-08-19",
+                   issue_summary: "مشكلة في سرعة الإنترنت",
+                   conversation_text: "سرعة الإنترنت بطيئة جداً في المساء. لا أستطيع مشاهدة الفيديوهات بجودة عالية. ما السبب؟"
+               }
+           ];
+
+           let ticketsData = [...initialTickets]; // Use a variable to hold the current tickets
+           const form = document.getElementById('add-ticket-form');
+           const ticketsContainer = document.getElementById('tickets-container');
+           let nextTicketId = 1006;
+
+           /**
+            * Renders a single ticket as an HTML card.
+            * @param {object} ticket - The ticket object to render.
+            */
+           const renderTicket = (ticket) => {
+               const ticketCard = document.createElement('div');
+               ticketCard.className = 'bg-white p-6 rounded-lg shadow border border-gray-200';
+
+               ticketCard.innerHTML = `
+                   <div class="flex justify-between items-center mb-2">
+                       <h3 class="text-xl font-bold text-indigo-600">تذكرة #${ticket.Ticket_id}</h3>
+                       <span class="text-sm text-gray-500">${ticket.issue_date}</span>
+                   </div>
+                   <p class="text-lg font-semibold text-gray-800">${ticket.customer_name}</p>
+                   <p class="text-gray-600 mt-2"><span class="font-medium">ملخص المشكلة:</span> ${ticket.issue_summary}</p>
+                   <div class="mt-4 p-4 bg-gray-100 rounded-md text-gray-700 text-sm">
+                       <p class="font-medium">المحادثة:</p>
+                       <p>${ticket.conversation_text}</p>
+                   </div>
+               `;
+               ticketsContainer.appendChild(ticketCard);
+           };
+
+           /**
+            * Renders all tickets from the current data array.
+            */
+           const renderAllTickets = () => {
+               ticketsContainer.innerHTML = ''; // Clear previous tickets
+               ticketsData.forEach(ticket => renderTicket(ticket));
+           };
+
+           // Initial render of the default tickets
+           renderAllTickets();
+
+           // Handle form submission to add a new ticket
+           form.addEventListener('submit', (event) => {
+               event.preventDefault(); // Prevent default form submission behavior
+
+               const newTicket = {
+                   Ticket_id: nextTicketId++,
+                   customer_name: document.getElementById('customer_name').value,
+                   issue_summary: document.getElementById('issue_summary').value,
+                   issue_date: document.getElementById('issue_date').value,
+                   conversation_text: document.getElementById('conversation_text').value,
+               };
+
+               // Add the new ticket to our data array
+               ticketsData.push(newTicket);
+
+               // Clear the form fields
+               form.reset();
+
+               // Re-render the entire list to show the new ticket
+               renderAllTickets();
+           });
+       });
+   </script>
+</body>
+</html>
